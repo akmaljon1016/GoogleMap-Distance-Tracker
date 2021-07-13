@@ -142,11 +142,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 //        }
 //        return true
 //    }
-    private fun fromVectorToBitmap(id: Int, color: Int): BitmapDescriptor {
-        val vectorDrawable: Drawable? =ResourcesCompat.getDrawable(resources,id,null)
-        if (vectorDrawable==null){
-            Log.d("MapsActivity","Resource not found")
-
-        }
-    }
+//    private fun fromVectorToBitmap(id: Int, color: Int): BitmapDescriptor {
+//        val vectorDrawable: Drawable? =ResourcesCompat.getDrawable(resources,id,null)
+//        if (vectorDrawable==null){
+//            Log.d("MapsActivity","Resource not found")
+//            return BitmapDescriptorFactory.defaultMarker()
+//        }
+//    }
 }
