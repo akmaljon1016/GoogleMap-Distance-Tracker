@@ -1,11 +1,15 @@
 package com.example.googlemapstevzasan
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.googlemapstevzasan.misc.CameraAndViewport
 import com.example.googlemapstevzasan.misc.TypeAndStyle
@@ -51,7 +55,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         val newYork = LatLng(40.71, -74.00)
         val sydneyMarker =
             mMap.addMarker(MarkerOptions().position(newYork).title("Marker in Margilan"))
-                .setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                .setIcon(fromVectorToBitmap(R.drawable.ic_baseline_directions_car_24,Color.parseColor("#000099")))
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15f))
         //mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraAndViewport.losAngeles))
@@ -142,11 +146,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 //        }
 //        return true
 //    }
-//    private fun fromVectorToBitmap(id: Int, color: Int): BitmapDescriptor {
-//        val vectorDrawable: Drawable? =ResourcesCompat.getDrawable(resources,id,null)
-//        if (vectorDrawable==null){
-//            Log.d("MapsActivity","Resource not found")
-//            return BitmapDescriptorFactory.defaultMarker()
-//        }
-//    }
+    private fun fromVectorToBitmap(id: Int, color: Int): BitmapDescriptor {
+        val vectorDrawable: Drawable? = ResourcesCompat.getDrawable(resources, id, null)
+        if (vectorDrawable == null) {
+            Log.d("MapsActivity", "Resource not found")
+            return BitmapDescriptorFactory.defaultMarker()
+        }
+        val bitmap = Bitmap.createBitmap(
+            vectorDrawable.intrinsicWidth,
+            vectorDrawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+        )
+        val canvas=Canvas(bitmap)
+        vectorDrawable.setBounds(0,0,canvas.width,canvas.height)
+        DrawableCompat.setTint(vectorDrawable,color)
+        vectorDrawable.draw(canvas)
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
+    }
 }
