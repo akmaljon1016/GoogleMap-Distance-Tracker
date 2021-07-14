@@ -1,6 +1,7 @@
 package com.example.googlemapstevzasan
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.util.Log
@@ -40,4 +41,9 @@ class Functions {
 //    vectorDrawable.draw(canvas)
 //    return BitmapDescriptorFactory.fromBitmap(bitmap)
 //}
+
+    //convert png to bitmap
+//    val b:Bitmap= BitmapFactory.decodeResource(resources,R.drawable.taxi)
+//    val smallMarker:Bitmap= Bitmap.createScaledBitmap(b,150,150,false)
+//    val smallMarkerIcon:BitmapDescriptor=BitmapDescriptorFactory.fromBitmap(smallMarker
 }

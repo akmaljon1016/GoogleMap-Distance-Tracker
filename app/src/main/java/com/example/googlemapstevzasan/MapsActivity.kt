@@ -1,6 +1,7 @@
 package com.example.googlemapstevzasan
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -10,6 +11,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.graphics.scaleMatrix
 import androidx.lifecycle.lifecycleScope
 import com.example.googlemapstevzasan.misc.CameraAndViewport
 import com.example.googlemapstevzasan.misc.TypeAndStyle
@@ -53,10 +55,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         // Add a marker in Sydney and move the camera
         val sydney = LatLng(40.44631712710847, 71.73140724612104)
         val newYork = LatLng(40.71, -74.00)
+//        int height = 100;
+//        int width = 100;
+//        Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable. marker);
+//        Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+//        BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker)
+        val b:Bitmap= BitmapFactory.decodeResource(resources,R.drawable.taxi)
+        val smallMarker:Bitmap= Bitmap.createScaledBitmap(b,150,150,false)
+        val smallMarkerIcon:BitmapDescriptor=BitmapDescriptorFactory.fromBitmap(smallMarker)
+
+
         val sydneyMarker =
             mMap.addMarker(MarkerOptions().position(newYork).title("Marker in Margilan"))
-                .setIcon(fromVectorToBitmap(R.drawable.ic_baseline_directions_car_24,Color.parseColor("#000099")))
-
+               // .setIcon(fromVectorToBitmap(R.drawable.ic_baseline_directions_car_24,Color.parseColor("#000099")))
+                .setIcon(smallMarkerIcon)
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15f))
         //mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraAndViewport.losAngeles))
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newYork, 10f))
