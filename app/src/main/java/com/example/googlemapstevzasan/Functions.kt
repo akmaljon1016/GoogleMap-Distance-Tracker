@@ -3,6 +3,7 @@ package com.example.googlemapstevzasan
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.widget.Toast
@@ -11,6 +12,8 @@ import androidx.core.graphics.drawable.DrawableCompat
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolylineOptions
+import kotlinx.coroutines.delay
 
 class Functions {
 //    fun onMapClicked() {
@@ -46,4 +49,30 @@ class Functions {
 //    val b:Bitmap= BitmapFactory.decodeResource(resources,R.drawable.taxi)
 //    val smallMarker:Bitmap= Bitmap.createScaledBitmap(b,150,150,false)
 //    val smallMarkerIcon:BitmapDescriptor=BitmapDescriptorFactory.fromBitmap(smallMarker
+
+
+    // function create poliline
+//    private fun addPolyline() {
+//        val polyline=mMap.addPolyline(
+//            PolylineOptions().apply {
+//                add(losAngeles,newYork)
+//                width(5f)
+//                color(Color.BLUE)
+//            }
+//        )
+//    }
+
+//    private suspend fun addPolyline() {
+//        val polyline=mMap.addPolyline(
+//            PolylineOptions().apply {
+//                add(losAngeles,newYork,margilan)
+//                width(5f)
+//                color(Color.BLUE)
+//                geodesic(true)
+//            }
+//        )
+//        delay(5000)
+//        val newList= listOf(losAngeles,mangolia,russian)
+//        polyline.points=newList
+//    }
 }
