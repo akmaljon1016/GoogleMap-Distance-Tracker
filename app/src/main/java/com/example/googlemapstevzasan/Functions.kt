@@ -48,7 +48,7 @@ class Functions {
     //convert png to bitmap
 //    val b:Bitmap= BitmapFactory.decodeResource(resources,R.drawable.taxi)
 //    val smallMarker:Bitmap= Bitmap.createScaledBitmap(b,150,150,false)
-//    val smallMarkerIcon:BitmapDescriptor=BitmapDescriptorFactory.fromBitmap(smallMarker
+//    val smallMarkerIcon:BitmapDescriptor=BitmapDescriptorFactory.fromBitmap(smallMarker)
 
 
     // function create poliline

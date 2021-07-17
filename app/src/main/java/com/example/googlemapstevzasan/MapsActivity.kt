@@ -1,21 +1,33 @@
 package com.example.googlemapstevzasan
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.scaleMatrix
 import androidx.lifecycle.lifecycleScope
 import com.example.googlemapstevzasan.misc.CameraAndViewport
 import com.example.googlemapstevzasan.misc.CustomInfoAdapter
+import com.example.googlemapstevzasan.misc.Shapes
 import com.example.googlemapstevzasan.misc.TypeAndStyle
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -26,17 +38,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerDragListener,
-    GoogleMap.OnMarkerClickListener {
+    GoogleMap.OnMarkerClickListener, GoogleMap.OnPolylineClickListener,
+    GoogleMap.OnMyLocationButtonClickListener {
 
     private lateinit var mMap: GoogleMap
-    val losAngeles = LatLng(34.09, -118.24)
+    var locationmanager: LocationManager? = null
+    lateinit var fusedLocationClient: FusedLocationProviderClient
     val newYork = LatLng(40.71, -74.00)
-    val margilan=LatLng(40.481318651799825, 71.72316750007317)
-
-    val mangolia=LatLng(46.77191876254289, 104.72199165627387)
-    val russian=LatLng(62.277139217497016, 99.32069459795063)
     private val typeAndStyle by lazy { TypeAndStyle() }
     private val cameraAndViewport by lazy { CameraAndViewport() }
+    private val shapes by lazy { Shapes() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +56,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        locationmanager = getSystemService(LOCATION_SERVICE) as LocationManager?
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+    }
+
+    private fun showGPSDisabledAlertToUser() {
+        val alertDialog: AlertDialog.Builder = AlertDialog.Builder(this)
+        alertDialog.setMessage("GPS is disabled in your device.Would you like to enable it")
+            .setCancelable(false)
+            .setPositiveButton("Goto settings Page to Enable GPS",
+                object : DialogInterface.OnClickListener {
+                    override fun onClick(p0: DialogInterface?, p1: Int) {
+                        val intent =
+                            Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                        startActivity(intent)
+                    }
+                })
+            .setNegativeButton("Cancel", object : DialogInterface.OnClickListener {
+                override fun onClick(p0: DialogInterface?, p1: Int) {
+                    p0?.cancel()
+                }
+            })
+        val alert: AlertDialog = alertDialog.create()
+        alert.show()
     }
 
     /**
@@ -72,9 +107,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         mMap.setInfoWindowAdapter(CustomInfoAdapter(this))
         val sydneyMarker =
-            mMap.addMarker(MarkerOptions().position(newYork).title("Marker in Margilan"))
+            mMap.addMarker(MarkerOptions().position(shapes.losAngeles).title("Marker in Margilan"))
                 // .setIcon(fromVectorToBitmap(R.drawable.ic_baseline_directions_car_24,Color.parseColor("#000099")))
                 .setIcon(smallMarkerIcon)
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(shapes.losAngeles, 6f))
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15f))
         //mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraAndViewport.losAngeles))
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newYork, 10f))
@@ -86,13 +122,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             isRotateGesturesEnabled = true
             isMyLocationButtonEnabled = true
             isMapToolbarEnabled = false
+            isMyLocationButtonEnabled = true
         }
-        mMap.setOnMarkerDragListener(this)
-        mMap.setOnMarkerClickListener(this)
-        lifecycleScope.launch {
-        addPolyline()
-        }
+
+
+//        lifecycleScope.launch {
+//        shapes.addPolyline(mMap)
+//        }
+//        mMap.setOnMarkerDragListener(this)
+//        mMap.setOnMarkerClickListener(this)
+//        lifecycleScope.launch {
+//            shapes.addPolyline(mMap)
+//        }
+//        mMap.setOnPolylineClickListener(this)
         // mMap.setOnMarkerClickListener(this)
+        mMap.setOnMyLocationButtonClickListener(this)
 
 //        lifecycleScope.launch {
 //            delay(7000L)
@@ -131,6 +175,46 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 //        mMap.setMaxZoomPreference(17f)
 //        onMapClicked()
 //        onMapLongClicked()
+        checkLocationPermision()
+    }
+
+    fun requestPermision() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            1
+        )
+    }
+
+
+    fun checkLocationPermision() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            mMap.isMyLocationEnabled = true
+            Toast.makeText(this, "Already enabled", Toast.LENGTH_SHORT).show()
+        } else {
+            requestPermision()
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode != 1) {
+            return
+        }
+        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            mMap.isMyLocationEnabled = true
+        } else {
+            Toast.makeText(this, "We need your permission", Toast.LENGTH_SHORT).show()
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     fun onMapClicked() {
@@ -191,17 +275,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         return false
     }
 
-    private suspend fun addPolyline() {
-        val polyline=mMap.addPolyline(
-            PolylineOptions().apply {
-                add(losAngeles,newYork,margilan)
-                width(5f)
-                color(Color.BLUE)
-                geodesic(true)
+
+    override fun onPolylineClick(p0: Polyline?) {
+        Toast.makeText(this, p0?.color.toString(), Toast.LENGTH_SHORT).show()
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun onMyLocationButtonClick(): Boolean {
+        if (locationmanager!!.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+            Toast.makeText(this, "GPS is enabled in your device", Toast.LENGTH_SHORT).show()
+            fusedLocationClient.lastLocation.addOnSuccessListener {
+                val location=LatLng(it.latitude.toFloat().toDouble(),
+                    it.longitude.toFloat().toDouble()
+                )
+                lifecycleScope.launch {
+
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location,10f),5000,null)
+                }
             }
-        )
-        delay(5000)
-        val newList= listOf(losAngeles,mangolia,russian)
-        polyline.points=newList
+            return true
+        } else {
+            showGPSDisabledAlertToUser()
+            return true
+        }
     }
 }
